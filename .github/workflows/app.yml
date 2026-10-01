@@ -1,0 +1,46 @@
+name: Syntax & Lint Checker
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  yaml-syntax-check:
+    name: Validate YAML Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML Files
+        run: |
+          yamllint -d "{extends: relaxed, rules: {line-length: disable}}" .
+
+  python-syntax-check:
+    name: Check Python Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check Python Syntax with Flake8
+        run: |
+          pip install flake8
+          # Stop build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
